@@ -1,7 +1,7 @@
 package main;
 
 import network.RecentPasser;
-import network.TCPServer;
+import network.UDPServer;
 
 public class Main {
 
@@ -9,16 +9,9 @@ public class Main {
 		var sender = new RecentPasser<String>();
 		var receiver = new RecentPasser<String>();
 		
-		TCPServer server = new TCPServer(10222, receiver, sender);
+		UDPServer server = new UDPServer(10222);
 		
 		Thread serverThread = new Thread(server);
 		serverThread.start();
-		
-		sender.pass("fatty boy fatty joy");
-		while (true) {
-			if (sender.retrieved()) {
-				sender.pass("crackpot fool");
-			}
-		}
 	}
 }
