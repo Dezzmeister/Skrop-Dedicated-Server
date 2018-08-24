@@ -2,6 +2,7 @@ package logic;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class Square implements Serializable {
 	public int color;
 	public int x;
@@ -25,10 +26,6 @@ public class Square implements Serializable {
 		int green = (int)(256 * Math.random());
 		int blue = (int)(256 * Math.random());
 		
-		System.out.println("red: " + red);
-		System.out.println("green: " + green);
-		System.out.println("blue: " + blue);
-		
-		color = (red << 24) + (green << 16) + (blue << 8);
+		color = (red << 16) | (green << 8) | blue;
 	}
 }

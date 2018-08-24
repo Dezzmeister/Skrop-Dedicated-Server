@@ -6,15 +6,23 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 
+/**
+ * It is what it says it is. It handles TCP communication with 1 phone.
+ *
+ * @author Joe Desmond
+ */
 public class TCPServer implements Runnable {
 	public final int port;
 	private Socket socket;
 	private ServerSocket serverSocket;
+	private final RecentPasser<String> receiver;
+	private final RecentPasser<String> sender;
 	
-	public TCPServer(int _port) {
+	public TCPServer(int _port, RecentPasser<String> _receiver, RecentPasser<String> _sender) {
 		port = _port;
+		receiver = _receiver;
+		sender = _sender;
 		
 		try {
 			serverSocket = new ServerSocket(port);
@@ -34,24 +42,30 @@ public class TCPServer implements Runnable {
 				socket = serverSocket.accept();
 				System.out.println("Connected to " + socket.getInetAddress().getHostAddress() + " on local port " + socket.getLocalPort() + ".");
 			
-				BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				BufferedWriter socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+				var socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				var socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 				
 				String messageIn = null;
 			
 				while ((messageIn = socketReader.readLine()) != null) {
 					System.out.println("RECEIVED: " + messageIn);
+					receiver.pass(messageIn);
 					
+					/*
 					String out = messageIn + " received!";
 					socketWriter.write(out);
 					socketWriter.write("\n");
 					socketWriter.flush();
+					*/
+					
+					if (sender.hasNew()) {
+						socketWriter.write(sender.retrieve());
+						socketWriter.write("\n");
+						socketWriter.flush();
+					}
 				}
 			
 				socket.close();
-			} catch (SocketException e) {
-				
-				e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
