@@ -10,11 +10,10 @@ import network.RecentPasser;
 
 public class UDPReceiver implements Runnable {
 	private final DatagramSocket socket;
-	private AtomicReference<InetAddress> address = new AtomicReference<InetAddress>(null);
 	private final int port;
-	private AtomicInteger clientPort = new AtomicInteger(-1);
 	
-	private AtomicReference<DatagramPacket> initialPacket = new AtomicReference<DatagramPacket>(null);
+	private InetAddress initialAddress = null;
+	private int initialPort = -1;
 	
 	private final RecentPasser<String> receiver;
 	
@@ -35,14 +34,15 @@ public class UDPReceiver implements Runnable {
 			while (true) {
 				socket.receive(incoming);
 				
-				if (address.get() == null && clientPort.get() == -1 && initialPacket.get() == null) {
-					while (!address.compareAndSet(null, incoming.getAddress()));
-					while (!clientPort.compareAndSet(-1, incoming.getPort()));
-					while (!initialPacket.compareAndSet(null, incoming));
+				if (initialAddress == null) {
+					initialAddress = incoming.getAddress();
+					initialPort = incoming.getPort();
 				}
 				
 				byte[] data = incoming.getData();
 				String received = new String(data, 0, incoming.getLength());
+				
+				System.out.println("RECEIVED: " + received);
 				
 				receiver.pass(received);
 			}
@@ -52,7 +52,11 @@ public class UDPReceiver implements Runnable {
 		}
 	}
 	
-	public DatagramPacket getInitialPacket() {
-		return initialPacket.get();
+	public InetAddress getInitialAddress() {
+		return initialAddress;
+	}
+	
+	public int getInitialPort() {
+		return initialPort;
 	}
 }

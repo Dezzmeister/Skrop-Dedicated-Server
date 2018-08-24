@@ -19,7 +19,7 @@ public class TCPServer implements Runnable {
 	private final RecentPasser<String> receiver;
 	private final RecentPasser<String> sender;
 	
-	public TCPServer(int _port, RecentPasser<String> _receiver, RecentPasser<String> _sender) {
+	public TCPServer(int _port, RecentPasser<String> _sender, RecentPasser<String> _receiver) {
 		port = _port;
 		receiver = _receiver;
 		sender = _sender;

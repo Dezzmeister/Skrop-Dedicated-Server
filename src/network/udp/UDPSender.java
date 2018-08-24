@@ -13,13 +13,13 @@ public class UDPSender implements Runnable {
 	
 	private final RecentPasser<String> sender;
 	
-	public UDPSender(DatagramSocket _socket, InetAddress _address, int _clientPort, RecentPasser<String> _sender) {
+	public UDPSender(final DatagramSocket _socket, final InetAddress _address, final int _clientPort, final RecentPasser<String> _sender) {
 		socket = _socket;
 		address = _address;
 		clientPort = _clientPort;
 		sender = _sender;
 		
-		System.out.println("UDP Sender created at port " + socket.getLocalPort());
+		System.out.println("UDP Sender created at port " + socket.getLocalPort() + ", communicating with " + address.getHostAddress() + ".");
 	}
 	
 	@Override
@@ -27,8 +27,12 @@ public class UDPSender implements Runnable {
 		try {
 			
 			while (true) {
+				
 				if (sender.hasNew()) {
+					
 					byte[] data = sender.retrieve().getBytes();
+					
+					System.out.println(sender.retrieve());
 					
 					DatagramPacket packet = new DatagramPacket(data, data.length, address, clientPort);
 					
