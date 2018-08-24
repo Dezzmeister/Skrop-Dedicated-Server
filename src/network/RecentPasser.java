@@ -20,13 +20,9 @@ public class RecentPasser<T> {
 	 * 
 	 * @return <code>true</code> if there is a new object
 	 */
-	public boolean hasNew() {
+	public synchronized boolean hasNew() {
 		
-		boolean result = changed.get();
-		
-		while (!changed.compareAndSet(result, false));
-
-		return result;
+		return changed.getAndSet(false);
 	}
 	
 	/**
@@ -44,6 +40,7 @@ public class RecentPasser<T> {
 		expected = changed.get();
 		
 		while (!changed.compareAndSet(expected, true));
+		System.out.println(changed.get());
 	}
 	
 	/**

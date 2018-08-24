@@ -49,6 +49,7 @@ class UDPSender implements Runnable {
 			while (true) {
 				
 				if (sender.hasNew()) {
+					System.out.println("new");
 					
 					byte[] data = sender.retrieve().getBytes();
 					

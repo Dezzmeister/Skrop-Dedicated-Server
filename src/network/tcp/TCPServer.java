@@ -1,4 +1,4 @@
-package network;
+package network.tcp;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import network.Communicator;
+import network.RecentPasser;
 
 /**
  * Sends and receives TCP packets in a connection with one other device. When <code>run()</code> is called, this <code>TCPServer</code> begins listening on the
