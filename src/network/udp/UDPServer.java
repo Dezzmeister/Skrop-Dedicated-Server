@@ -4,8 +4,18 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
+import network.Communicator;
 import network.RecentPasser;
 
+/**
+ * Creates a UDP server. The server begins by listening on a specified port until a datagram packet arrives, presumably from a client device.
+ * The server obtains the IP and port of the sender, then passes this information to another sender {@link java.lang.Thread Thread}. Once this
+ * <code>Thread</code> has the information, it can begin to send messages back to the client device.
+ * <p>
+ * A <code>UDPServer</code> should be started on a different <code>Thread</code>.
+ *
+ * @author Joe Desmond
+ */
 public class UDPServer implements Runnable {
 	private DatagramSocket socket = null;
 	public final int port;
@@ -21,18 +31,27 @@ public class UDPServer implements Runnable {
 		messageSender = _messageSender;
 		messageReceiver = _messageReceiver;
 		
-		try {
-			socket = new DatagramSocket(port);
-		} catch (SocketException e) {
-			e.printStackTrace();
-		}
+		createSocket();
 	}
 	
+	public UDPServer(int _port, Communicator<String> communicator) {
+		port = _port;
+		messageSender = communicator.sender;
+		messageReceiver = communicator.receiver;
+		
+		createSocket();
+	}
+	
+	/**
+	 * <b>DO NOT EXPLICITLY CALL THIS METHOD. USE THIS UDP SERVER IN A THREAD.</b>
+	 * <p>
+	 * <b>THIS METHOD BLOCKS INDEFINITELY.</b>
+	 */
 	@Override
 	public void run() {
-		UDPReceiver receiver = new UDPReceiver(socket, port, messageReceiver);
+		UDPReceiver receiver = new UDPReceiver(socket, messageReceiver);
 		
-		receiverThread = new Thread(receiver);
+		receiverThread = new Thread(receiver, "Skrop UDP Receiver Service");
 		receiverThread.start();
 		
 		InetAddress initialAddress;
@@ -44,9 +63,18 @@ public class UDPServer implements Runnable {
 		
 		UDPSender sender = new UDPSender(socket, initialAddress, initialPort, messageSender);
 		
-		senderThread = new Thread(sender);
+		senderThread = new Thread(sender, "Skrop UDP Sender Service");
 		senderThread.start();
 		
 		while (true);
+	}
+	
+	private void createSocket() {
+		try {
+			socket = new DatagramSocket(port);
+			System.out.println("UDP Datagram Socket created at UDP port " + port + ".");
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
 	}
 }
