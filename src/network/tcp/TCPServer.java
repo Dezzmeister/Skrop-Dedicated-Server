@@ -15,7 +15,7 @@ import network.RecentPasser;
  * port specified in the constructor. When another device successfully connects, communication can begin.
  * 
  * <p>
- * Unlike UDP, two devices communicating through TCP hold a formal connection. This means that separate classes are not needed to send or receive TCP packets.
+ * Unlike UDP, two devices communicating through TCP hold a formal connection.
  *
  * @author Joe Desmond
  */
@@ -42,6 +42,9 @@ public class TCPServer implements Runnable {
 		createSocket();
 	}
 	
+	private BufferedReader socketReader;
+	private BufferedWriter socketWriter;
+	
 	/**
 	 * <b>DO NOT EXPLICITLY CALL THIS METHOD. USE THIS TCP SERVER IN A THREAD.</b>
 	 * <p>
@@ -58,15 +61,17 @@ public class TCPServer implements Runnable {
 				socket = serverSocket.accept();
 				System.out.println("TCP Server connected to " + socket.getInetAddress().getHostAddress() + " on local port " + socket.getLocalPort() + ".");
 			
-				var socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				var socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+				socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 				
-				String messageIn = null;
+				while (socket.isConnected()) {
+					String messageIn = null;
 				
-				while ((messageIn = socketReader.readLine()) != null) {
-					System.out.println("TCP RECEIVED: " + messageIn);
-					receiver.pass(messageIn);
-					
+					while (socketReader.ready() && (messageIn = socketReader.readLine()) != null) {
+						System.out.println("TCP RECEIVED: " + messageIn);
+						receiver.pass(messageIn);
+					}
+				
 					if (sender.hasNew()) {
 						socketWriter.write(sender.retrieve());
 						socketWriter.write("\n");
@@ -79,7 +84,7 @@ public class TCPServer implements Runnable {
 				e.printStackTrace();
 			}
 		}
-	}	
+	}
 	
 	private void createSocket() {
 		try {

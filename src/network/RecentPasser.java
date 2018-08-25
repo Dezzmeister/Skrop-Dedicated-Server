@@ -40,7 +40,6 @@ public class RecentPasser<T> {
 		expected = changed.get();
 		
 		while (!changed.compareAndSet(expected, true));
-		System.out.println(changed.get());
 	}
 	
 	/**
