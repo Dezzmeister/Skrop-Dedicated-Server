@@ -3,6 +3,11 @@ package network;
 import network.tcp.TCPServer;
 import network.udp.UDPServer;
 
+/**
+ * Runs both a TCP and a UDP server. Creates two {@link java.lang.Thread Threads}, one for each server.
+ *
+ * @author Joe Desmond
+ */
 public final class DualServer {
 	private final Communicator<String> tcpCommunicator = new Communicator<String>();
 	private final Communicator<String> udpCommunicator = new Communicator<String>();
@@ -16,6 +21,13 @@ public final class DualServer {
 	private final Thread tcpThread;
 	private final Thread udpThread;
 	
+	/**
+	 * Creates, but does not start, 1 {@link network.tcp.TCPServer TCPServer} and 1 
+	 * {@link network.udp.UDPServer UDPServer} at the specified ports.
+	 * 
+	 * @param _tcpPort port for TCP Server
+	 * @param _udpPort port for UDP Server
+	 */
 	public DualServer(int _tcpPort, int _udpPort) {
 		tcpPort = _tcpPort;
 		udpPort = _udpPort;
@@ -28,17 +40,33 @@ public final class DualServer {
 	}
 	
 	/**
-	 * Starts the TCP and UDP servers.
+	 * Starts the TCP and UDP servers; they will listen on their respective ports until a client connects or sends data.
 	 */
 	public void start() {
 		tcpThread.start();
 		udpThread.start();
 	}
 	
+	/**
+	 * Sends a message to the TCP Server. If the TCP Server has not been started, 
+	 * it will attempt to send the latest message received through this method when it starts.
+	 * <p>
+	 * The server automatically appends a newline character to the end of the String before sending it.
+	 * 
+	 * @param message String to send through TCP Server
+	 */
 	public void sendTCP(String message) {
 		tcpCommunicator.send(message);
 	}
 	
+	/**
+	 * Sends a message to the UDP Server. If the UDP Server has not been started, 
+	 * it will attempt to send the latest message received through this method when it starts.
+	 * <p>
+	 * The server automatically appends a newline character to the end of the String before sending it.
+	 * 
+	 * @param message String to send through UDP Server
+	 */
 	public void sendUDP(String message) {
 		udpCommunicator.send(message);
 	}

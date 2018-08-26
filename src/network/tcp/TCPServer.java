@@ -36,8 +36,8 @@ public class TCPServer implements Runnable {
 	
 	public TCPServer(int _port, Communicator<String> communicator) {
 		port = _port;
-		sender = communicator.sender;
-		receiver = communicator.receiver;
+		sender = communicator.getSender();
+		receiver = communicator.getReceiver();
 		
 		createSocket();
 	}

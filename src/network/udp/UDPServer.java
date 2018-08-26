@@ -1,8 +1,6 @@
 package network.udp;
 
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
@@ -10,15 +8,16 @@ import network.Communicator;
 import network.RecentPasser;
 
 /**
- * Creates a UDP server. The server is always listening on a specified port. When a packet is received, the origin of the packet is saved
+ * Creates a UDP server, which is always listening on a specified port (but not until <code>run()</code> is called). When a packet is received, the origin of the packet is saved
  * so that data can be send to the other device. This simulates a connection despite the lack of a formal connection in UDP.
  * <p>
- * A <code>UDPServer</code> should be started on a different <code>Thread</code>.
+ * A <code>UDPServer</code> should be started on a different {@link java.lang.Thread Thread}.
  *
  * @author Joe Desmond
  */
 public class UDPServer implements Runnable {
-	private DatagramSocket socket = null;
+	private int incomingPacketMaxLength = 4096;
+	
 	public final int port;
 	
 	private final RecentPasser<String> messageReceiver;
@@ -34,10 +33,17 @@ public class UDPServer implements Runnable {
 		createSocket();
 	}
 	
+	/**
+	 * Creates a <code>UDPServer</code> that will send and receive data through <code>_port</code>. Received data will be available
+	 * in <code>communicator</code>, which can also be used to send data.
+	 * 
+	 * @param _port UDP port to listen on
+	 * @param communicator <code>Communicator</code> to send and receive String data
+	 */
 	public UDPServer(int _port, Communicator<String> communicator) {
 		port = _port;
-		messageSender = communicator.sender;
-		messageReceiver = communicator.receiver;
+		messageSender = communicator.getSender();
+		messageReceiver = communicator.getReceiver();
 		
 		createSocket();
 	}
@@ -49,19 +55,21 @@ public class UDPServer implements Runnable {
 	 */
 	@Override	
 	public void run() {
-		ByteBuffer inBuffer = ByteBuffer.allocate(4096);
+		ByteBuffer inBuffer = ByteBuffer.allocate(incomingPacketMaxLength);
 		inBuffer.clear();
-		SocketAddress clientAddress = null;
+		InetSocketAddress clientAddress = null;
 		
-		try {			
+		try {
+			System.out.println("UDP Server listening at UDP port " + port + ". Waiting for data...");
+			
 			channel.configureBlocking(false);
 			
 			while (true) {				
-				SocketAddress address = channel.receive(inBuffer);
+				InetSocketAddress address = (InetSocketAddress) channel.receive(inBuffer);
 				
 				if (address != null) {
 					if (address != clientAddress) {
-						System.out.println("UDP client connected!");
+						System.out.println("UDP data received from " + address.getAddress().getHostAddress() + " on client UDP port " + address.getPort() + ".");
 					}
 					clientAddress = address;
 					byte[] bytes = inBuffer.array();
@@ -97,5 +105,15 @@ public class UDPServer implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Sets the maximum length of packets received by this {@link UDPServer}. Any extra characters will
+	 * be discarded.
+	 * 
+	 * @param maxLength maximum packet length
+	 */
+	public void setIncomingPacketMaxLength(int maxLength) {
+		incomingPacketMaxLength = maxLength;
 	}
 }
