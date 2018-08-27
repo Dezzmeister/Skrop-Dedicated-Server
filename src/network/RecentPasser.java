@@ -3,14 +3,15 @@ package network;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Used mainly to pass messages from a Server's client to game logic code, and to send messages from game logic code through a Server to a client. Only retains most recent message.
+ * Used mainly to pass messages from a Server's client to game logic code, or to send messages from game logic code through a Server to a client. 
+ * Only retains most recent message.
  * <p>
- * <code>RecentPasser</code> is thread safe.
+ * <b><code>RecentPasser</code> is thread safe.</b>
  *
  * @author Joe Desmond
  */
 public class RecentPasser<T> {
-	private T received;
+	private T received = null;
 	private final AtomicBoolean retrieved = new AtomicBoolean(false);
 	private final AtomicBoolean changed = new AtomicBoolean(false);
 	

@@ -26,6 +26,14 @@ public class TCPServer implements Runnable {
 	private final RecentPasser<String> receiver;
 	private final RecentPasser<String> sender;
 	
+	/**
+	 * Creates a <code>TCPServer</code> that will send and receive data through the local TCP port, <code>_port</code>. 
+	 * Received data will be available in <code>_receiver</code>; data can be sent through <code>_sender</code>.
+	 * 
+	 * @param _port TCP port to listen on
+	 * @param _sender used to send data to the other device
+	 * @param _receiver used to receive data from the other device
+	 */
 	public TCPServer(int _port, RecentPasser<String> _sender, RecentPasser<String> _receiver) {
 		port = _port;
 		receiver = _receiver;
@@ -34,12 +42,31 @@ public class TCPServer implements Runnable {
 		createSocket();
 	}
 	
+	/**
+	 * Creates a <code>TCPServer</code> that will send and receive data through the local TCP port, <code>_port</code>. 
+	 * Received data will be available in <code>communicator</code>, which can also be used to send data.
+	 * 
+	 * @param _port TCP port to listen on
+	 * @param communicator <code>Communicator</code> to send and receive String data
+	 */
 	public TCPServer(int _port, Communicator<String> communicator) {
 		port = _port;
 		sender = communicator.getSender();
 		receiver = communicator.getReceiver();
 		
 		createSocket();
+	}
+	
+	/**
+	 * Creates a new <code>TCPServer</code> with the specified port and <code>Communicator</code>.
+	 * Returns a new <code>Thread</code> with this <code>TCPServer</code>, but does not start the <code>Thread</code>.
+	 * 
+	 * @param port port to create <code>TCPServer</code> with
+	 * @param communicator <code>Communicator</code> to create <code>TCPServer</code> with
+	 * @return <code>Thread</code> to run newly created <code>TCPServer</code>
+	 */
+	public static Thread createOnNewThread(int port, Communicator<String> communicator) {
+		return new Thread(new TCPServer(port, communicator));
 	}
 	
 	private BufferedReader socketReader;
@@ -80,6 +107,7 @@ public class TCPServer implements Runnable {
 				}
 			
 				socket.close();
+				receiver.pass(null);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -98,4 +98,12 @@ public final class DualServer {
 		
 		return null;
 	}
+	
+	public Communicator<String> getTCPCommunicator() {
+		return tcpCommunicator;
+	}
+	
+	public Communicator<String> getUDPCommunicator() {
+		return udpCommunicator;
+	}
 }

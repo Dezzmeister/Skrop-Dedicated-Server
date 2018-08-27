@@ -25,6 +25,14 @@ public class UDPServer implements Runnable {
 	
 	private DatagramChannel channel;
 	
+	/**
+	 * Creates a <code>UDPServer</code> that will send and receive data through the local UDP port, <code>_port</code>. 
+	 * Received data will be available in <code>_messageReceiver</code>; data can be sent through <code>_messageSender</code>.
+	 * 
+	 * @param _port UDP port to listen on
+	 * @param _messageSender used to send data to the other device
+	 * @param _messageReceiver used to receive data from the other device
+	 */
 	public UDPServer(int _port, RecentPasser<String> _messageSender, RecentPasser<String> _messageReceiver) {
 		port = _port;
 		messageSender = _messageSender;
@@ -34,8 +42,8 @@ public class UDPServer implements Runnable {
 	}
 	
 	/**
-	 * Creates a <code>UDPServer</code> that will send and receive data through <code>_port</code>. Received data will be available
-	 * in <code>communicator</code>, which can also be used to send data.
+	 * Creates a <code>UDPServer</code> that will send and receive data through the local UDP port, <code>_port</code>. 
+	 * Received data will be available in <code>communicator</code>, which can also be used to send data.
 	 * 
 	 * @param _port UDP port to listen on
 	 * @param communicator <code>Communicator</code> to send and receive String data
@@ -46,6 +54,18 @@ public class UDPServer implements Runnable {
 		messageReceiver = communicator.getReceiver();
 		
 		createSocket();
+	}
+	
+	/**
+	 * Creates a new <code>UDPServer</code> with the specified port and <code>Communicator</code>.
+	 * Returns a new <code>Thread</code> with this <code>UDPServer</code>, but does not start the <code>Thread</code>.
+	 * 
+	 * @param port port to create <code>UDPServer</code> with
+	 * @param communicator <code>Communicator</code> to create <code>UDPServer</code> with
+	 * @return <code>Thread</code> to run newly created <code>UDPServer</code>
+	 */
+	public static Thread createOnNewThread(int port, Communicator<String> communicator) {
+		return new Thread(new UDPServer(port, communicator));
 	}
 	
 	/**
