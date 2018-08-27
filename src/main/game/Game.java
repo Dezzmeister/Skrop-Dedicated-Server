@@ -61,8 +61,12 @@ public class Game {
 			case WAITING_FOR_CONNECTION_2:
 				updateWaitingForConnection2();
 				break;
+			case WAITING_FOR_GAME_START:
+				updateWaitingForGameStart();
+				break;
 		}
 	}
+	
 	
 	private void updateInactive() {
 		if (fromClient1TCP != null ^ fromClient2TCP != null) {
@@ -78,6 +82,19 @@ public class Game {
 	}
 	
 	private void updateWaitingForConnection2() {
+		if (fromClient1TCP != null && fromClient2TCP != null) {
+			gameState = GameState.WAITING_FOR_GAME_START;
+			
+			toClient1TCP = "waiting for game";
+			toClient2TCP = "waiting for game";
+		}
+	}
+	
+	private void initializeGame() {
+		
+	}
+	
+	private void updateWaitingForGameStart() {
 		
 	}
 }
