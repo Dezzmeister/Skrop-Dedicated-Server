@@ -1,9 +1,15 @@
 package main.game;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RectangleList {
+public class RectangleList implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5780177729558054370L;
+
 	public static final int MAX_SPAWN_TRIES = 50;
 	
 	private List<Rectangle> list = new ArrayList<Rectangle>();
