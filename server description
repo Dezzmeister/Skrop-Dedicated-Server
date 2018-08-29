@@ -1,0 +1,24 @@
+When two Skrop Clients want to play each other, they connect to one Server (this)
+instead of each other (as they did in Skorp). The Server opens two TCP sockets and two
+UDP sockets, 1 TCP socket and 1 UDP socket for each client. (Note: it is doubted that
+the UDP sockets will be used anymore; UDP will probably be removed from this game soon.)
+Two port numbers are used: one for the first client's TCP/UDP pair, and one for the second client's
+TCP/UDP pair. Both clients must know both ports and the IP of the server. 
+
+When one client attempts to connect to the server, it will try to connect to the first TCP port. If this port
+is available, the client successfully connects to it. When the second client attempts to connect, it will try the
+first port. When that doesn't work, it tries the second port. 
+
+After both clients have successfully connected, the server will generate the initial rectangles and send them 
+to each client. Neither the clients nor the server will update these rectangles; the server is waiting for both clients to
+signify that they are ready to begin the game. 
+
+When both clients are ready, the server will send a reply to both clients telling them to begin the game. From this point,
+to overcome possible problems of high latency, the server and clients will (for the most part) run separately. The server updates its game state
+25 times/second, and the clients must do the same. Any time a client's screen is pressed, the location of the tap is sent through TCP 
+(in Normalized Device Coordinates) to the server. The server determines if this tap destroyed a rectangle. If it did, the server will 
+replace the rectangle, update the scores, and send updated rectangle data to the clients. The clients then use this server data and compare
+it with their own data. If a client detects that it frequently falls behind/gets ahead of server time, it will adjust to stay synchronized.
+
+I am thinking of using Network Time Protocol or something here - it would be ideal if I had a way to accurately know exactly how long ago
+a packet from the server was valid data. This way, the clients could further adjust themselves to stay synchronized with the server.
