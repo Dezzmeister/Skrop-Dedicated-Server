@@ -7,15 +7,15 @@ import java.util.List;
 public class RectangleList implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 567389107909241167L;
-
+	
 	public static final int MAX_SPAWN_TRIES = 50;
 
 	private List<Rectangle> list = new ArrayList<Rectangle>();
 
-	private transient int maxRectangles = 10;
+	private transient int maxRectangles;
 
 	private transient float lowerSpawnBoundX = 0.05f;
 	private transient float upperSpawnBoundX = 0.95f;
@@ -89,7 +89,7 @@ public class RectangleList implements Serializable {
 					+ " attempts. Consider lowering the amound of rectangles or raising the max spawn tries.");
 			return false;
 		} else {
-			list.add(new Rectangle(x, y, randomBoundedMaxWidth(), randomBoundedMaxHeight()));
+			list.add(new Rectangle(x, y, randomBoundedMaxWidth(), randomBoundedMaxHeight(), list.size()));
 			return true;
 		}
 	}

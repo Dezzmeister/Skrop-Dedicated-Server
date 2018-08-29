@@ -4,35 +4,27 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import main.game.RectangleList;
-import network.DualServer;
-import network.Serialize;
-
 public class Main {
 	
-	static DualServer server1;
+	static Server server;
 	
 	public static void main(String[] args) {
-		/*
-		server1 = new DualServer(10222, 10222);
-		server1.start();
+		
+		server = new Server(10222, 10223);
+		server.start();
 
 		acceptUserInput();
-		*/
 		
-		RectangleList rectangles = new RectangleList(10);
-		rectangles.update(0);
-		try {
-			System.out.println(Serialize.toString(rectangles));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		/*
+		 * RectangleList rectangles = new RectangleList(10); rectangles.update(0); try {
+		 * System.out.println(Serialize.toString(rectangles)); } catch (IOException e) {
+		 * // TODO Auto-generated catch block e.printStackTrace(); }
+		 */
 	}
 
 	static void acceptUserInput() {
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-
+		
 		while (true) {
 			String command = "";
 			try {
@@ -43,10 +35,14 @@ public class Main {
 			}
 			
 			if (command != null && !command.equals("")) {
-				if (command.startsWith("tcp send") && command.length() >= 10) {
-					server1.sendTCP(command.substring(9));
-				} else if (command.startsWith("udp send") && command.length() >= 10) {
-					server1.sendUDP(command.substring(9));
+				if (command.startsWith("tcp send 1") && command.length() >= "tcp send 1".length()) {
+					server.server1().sendTCP(command.substring(9));
+				} else if (command.startsWith("udp send 1") && command.length() >= "udp send 1".length()) {
+					server.server1().sendUDP(command.substring(9));
+				} else if (command.startsWith("tcp send 2") && command.length() >= "tcp send 2".length()) {
+					server.server2().sendTCP(command.substring(9));
+				} else if (command.startsWith("udp send 2") && command.length() >= "udp send 2".length()) {
+					server.server2().sendUDP(command.substring(9));
 				} else if (command.equals("exit")) {
 
 				}

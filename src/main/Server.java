@@ -1,11 +1,14 @@
 package main;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import main.game.Game;
 import network.DualServer;
 
-public class Server implements Runnable {
+public class Server {
 	
 	private final DualServer server1;
 	private final DualServer server2;
@@ -29,14 +32,31 @@ public class Server implements Runnable {
 		game = new Game(server1.getTCPCommunicator(), server2.getTCPCommunicator(), server1.getUDPCommunicator(),
 				server2.getUDPCommunicator());
 	}
+	
+	public DualServer server1() {
+		return server1;
+	}
+	
+	public DualServer server2() {
+		return server2;
+	}
+	
+	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-	@Override
+	// 25 updates per second
+	public void start() {
+		server1.start();
+		server2.start();
+
+		executor.scheduleAtFixedRate(game::updateGame, 0, 40, TimeUnit.MILLISECONDS);
+	}
+
 	public void run() {
 		server1.start();
 		server2.start();
 
 		long last = System.nanoTime();
-		double ticks = 60;
+		double ticks = 30;
 		double ns = 1000000000 / ticks;
 		double delta = 0;
 		long timer = System.currentTimeMillis();
@@ -48,7 +68,7 @@ public class Server implements Runnable {
 			last = now;
 
 			game.receiveFromClients();
-
+			
 			while (delta >= 1) {
 				game.setDelta(delta);
 				game.updateGame();
@@ -62,9 +82,5 @@ public class Server implements Runnable {
 				timer += 1000;
 			}
 		}
-	}
-
-	private void updateClients() {
-
 	}
 }

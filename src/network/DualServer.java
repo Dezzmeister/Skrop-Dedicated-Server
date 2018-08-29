@@ -71,9 +71,6 @@ public final class DualServer {
 	 * Sends a message to the UDP Server. If the UDP Server has not been started, it
 	 * will attempt to send the latest message received through this method when it
 	 * starts.
-	 * <p>
-	 * The server automatically appends a newline character to the end of the String
-	 * before sending it.
 	 *
 	 * @param message
 	 *            String to send through UDP Server

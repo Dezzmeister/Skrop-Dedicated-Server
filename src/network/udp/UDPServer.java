@@ -1,5 +1,6 @@
 package network.udp;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -19,6 +20,8 @@ import network.RecentPasser;
  * @author Joe Desmond
  */
 public class UDPServer implements Runnable {
+
+	public static final String TERMINATOR = Character.toString((char) 0);
 	
 	private int incomingPacketMaxLength = 4096;
 
@@ -61,11 +64,7 @@ public class UDPServer implements Runnable {
 	 *            <code>Communicator</code> to send and receive String data
 	 */
 	public UDPServer(int _port, Communicator<String> communicator) {
-		port = _port;
-		messageSender = communicator.getSender();
-		messageReceiver = communicator.getReceiver();
-
-		createSocket();
+		this(_port, communicator.getSender(), communicator.getReceiver());
 	}
 
 	/**
@@ -98,10 +97,10 @@ public class UDPServer implements Runnable {
 			System.out.println("UDP Server listening at UDP port " + port + ". Waiting for data...");
 
 			channel.configureBlocking(false);
-
+			
 			while (true) {
 				InetSocketAddress address = (InetSocketAddress) channel.receive(inBuffer);
-
+				
 				if (address != null) {
 					if (address != clientAddress) {
 						System.out.println("UDP data received from " + address.getAddress().getHostAddress()
@@ -109,12 +108,13 @@ public class UDPServer implements Runnable {
 					}
 					clientAddress = address;
 					byte[] bytes = inBuffer.array();
+					
 					String inMessage = new String(bytes);
 					System.out.println("UDP RECEIVED: " + inMessage);
 					messageReceiver.pass(inMessage);
 					inBuffer.clear();
 				}
-
+				
 				if (messageSender.hasNew() && clientAddress != null) {
 					String outMessage = messageSender.retrieve();
 
@@ -122,6 +122,8 @@ public class UDPServer implements Runnable {
 					outBuffer.clear();
 					outBuffer.put(outMessage.getBytes());
 					outBuffer.flip();
+					
+					System.out.println(outMessage.length());
 
 					channel.send(outBuffer, clientAddress);
 				}
@@ -152,5 +154,14 @@ public class UDPServer implements Runnable {
 	 */
 	public void setIncomingPacketMaxLength(int maxLength) {
 		incomingPacketMaxLength = maxLength;
+	}
+	
+	@Override
+	protected void finalize() {
+		try {
+			channel.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

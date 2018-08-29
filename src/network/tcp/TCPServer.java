@@ -2,6 +2,7 @@ package network.tcp;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
@@ -113,7 +114,7 @@ public class TCPServer implements Runnable {
 						receiver.pass(messageIn);
 					}
 					
-					if (sender.hasNew()) {
+					if (sender.hasNew() && sender.retrieve() != null) {
 						socketWriter.write(sender.retrieve());
 						socketWriter.write("\n");
 						socketWriter.flush();
@@ -133,6 +134,15 @@ public class TCPServer implements Runnable {
 			serverSocket = new ServerSocket(port);
 			System.out.println("TCP Server socket created at TCP port " + port + ".");
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	protected void finalize() {
+		try {
+			socket.close();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
