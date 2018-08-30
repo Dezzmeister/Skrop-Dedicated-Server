@@ -89,18 +89,15 @@ public class Game {
 	}
 	
 	private void updateInactive() {
-		System.out.println("dood");
 		
 		if (fromClient1TCP != null ^ fromClient2TCP != null) {
 			gameState = GameState.WAITING_FOR_CONNECTION_2;
 
 			if (fromClient1TCP != null) {
 				server1TCP.send("waiting, client 1");
-				System.out.println("joj almighty");
 			}
 			if (fromClient2TCP != null) {
 				server2TCP.send("waiting, client 2");
-				System.out.println("joj almightee");
 			}
 		}
 	}
